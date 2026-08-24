@@ -12,11 +12,13 @@ version you have; the published reference lives at
 - Success: `{ "apiVersion": 1, "ok": true, … }`.
   Error: `{ "apiVersion": 1, "ok": false, "error": "<human message with next steps>", "code"?: "<machine code>" }`.
 - Exit 0 success · 1 error · 2 `insufficient_credits`.
-- `code` is emitted for `insufficient_credits`, `offline_no_cache` and
-  `offline_network_required`. Everything else (not found, over budget, bad
-  hex, network failure) is a plain error line — read `error`, which carries the
-  remediation. (The MCP server adds `over_budget`, `no_api_key`, `not_found`
-  and `network`; see `references/mcp.md`.)
+- `code` is emitted for `insufficient_credits`, `offline_no_cache`,
+  `offline_network_required` and `registry_not_published` (a registry repo
+  that is missing, private or empty — the other kinds still work). Everything
+  else (not found, over budget, bad hex, network failure) is a plain error
+  line — read `error`, which carries the remediation. (The MCP server adds
+  `over_budget`, `no_api_key`, `not_found` and `network`; see
+  `references/mcp.md`.)
 - Global flags: `--offline` (cached manifests only, no network),
   `-V/--version`, `-h/--help`.
 - `--kind illustration|icon|font|all` on the discovery commands `search`,
@@ -32,8 +34,8 @@ version you have; the published reference lives at
 
 Illustrations: `svg`, `png`, `png@2x`, `png@3x`, `webp`, `jpg`, `pdf`.
 Fonts: `woff2`, `otf`, `ttf`. Comma-separated in `--format`, or `all`.
-Icons ship SVG only — `--format` is not meaningful for them (it is currently
-accepted and ignored, so don't pass it).
+Icons ship SVG only — `--format` accepts `svg` or `all` and errors on anything
+else, before any file is written.
 Colour overrides apply to `svg`/`pdf` for illustrations; icons are always SVG,
 so they always recolour; fonts have no palette.
 
@@ -130,6 +132,9 @@ Install layout per kind (all relative to `.artifisiorc.json#outputDir`, default
 `missingVariants[]` is `"<item>@<fmt>"` for illustrations and fonts; icons push
 the bare icon slug (an icon that ships no SVG at all).
 
+Premium items are listed in the registry but excluded from a free install
+(illustrations and icons); the JSON reports how many were withheld.
+
 `--cdn` payload: `{ mode: "cdn", slug, kind, <rows>, premiumSkipped, license, attributionRequired, attribution }` where `<rows>` is
 `illustrations` (illustrations), `icons` (icon sets, sprite last) or `files`
 (fonts, stylesheet first).
@@ -142,7 +147,9 @@ Payload: `{ mode: "preview-colors", slug, illustrationSlug, previewPath, colors,
 One line per slug, either `{ slug, upToDate: true, added: 0, changed: 0, removed: 0, skipped: 0 }`
 or `{ ok, slug, dryRun, added, changed, removed, skipped, errors[], missingVariants[], attributionFile }`.
 Not installed → `{ ok: false, error, slug }`. Works for all three kinds; the
-kind comes from `.artifisiorc.json`.
+kind comes from `.artifisiorc.json`. When the set directory already has an
+`index.ts` / `index.d.ts`, `update` regenerates it so the typed exports match
+the files on disk.
 
 ### `ls`
 `--json` → `{ sets[] { slug, kind, source, name?, license?, version?, formats?, colors? } }`.
@@ -156,8 +163,9 @@ regenerates `ATTRIBUTION.md`. Ends with an aggregate line
 `--network`, `--json`. `{ ok, issues[] { set, kind: resolve | manifest-drift | missing | hash, detail }, warnings[] { set, kind: stale | unknown-color, detail } }`;
 with `--network`: `{ ok, network { ok, checks { manifest, cdn, api } } }`. Exit 1 when `ok` is false.
 Checks all three kinds: illustration variants, icon SVGs (and `sprite.svg`),
-font files plus `<slug>.css`. The `unknown-color` warning is currently raised
-for illustration sets only.
+font files plus `<slug>.css`. `--network` probes the raw manifest and the CDN
+mirror of **every** registry kind plus the API, so a 404 on one kind is visible
+even when the others are healthy.
 
 ## Generation (API key + credits) — illustrations only
 
