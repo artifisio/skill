@@ -1,0 +1,18 @@
+{
+  "name": "artifisio",
+  "owner": { "name": "Artifisio", "url": "https://artifisio.com" },
+  "metadata": {
+    "description": "Artifisio — illustrations, icons and fonts for AI-built apps.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "artifisio",
+      "source": "./",
+      "description": "Find, theme and install illustrations, icons and fonts — skill + /artifisio command + MCP server.",
+      "version": "0.1.0",
+      "category": "design",
+      "keywords": ["illustrations", "icons", "svg", "fonts", "mcp"]
+    }
+  ]
+}

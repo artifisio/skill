@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "artifisio": {
+      "command": "npx",
+      "args": ["-y", "@artifisio/mcp"]
+    }
+  }
+}
