@@ -57,11 +57,11 @@ so they always recolour; fonts have no palette.
 | `score`, `matchedOn[]` | `search` only. `matchedOn` values: `slug`, `name`, `tags`, `description`, `illustrations` \| `icons` \| `styles` (item match, named after the kind), `palette`, `color` |
 | `paletteDistance` | with `--color`: RGB distance to the closest palette entry |
 
-`show` adds `illustrations[] { slug, premium, formats[], preview, previews { <fmt>: url } }`
+`show` adds `items[] { slug, premium, formats[], preview, previews { <fmt>: url } }`
 and `installWithColors`. **For an icon set the icons are projected into that
-same `illustrations[]` array** (icons and illustrations share an item shape);
+same `items[]` array** (icons and illustrations share an item shape);
 it is `[]` for fonts, and `installWithColors` is `null` for fonts.
-One slug → fields at top level; several → `{ styles: [...] }`.
+One slug → fields at top level; several → `{ sets: [...] }`.
 
 ## Discovery (no auth)
 
@@ -71,7 +71,7 @@ One slug → fields at top level; several → `{ styles: [...] }`.
 Payload: `{ query, kind, source: "api" | "local", registryVersions, unavailable?, results: Row[] }`.
 An empty query with `--color` ranks by colour alone.
 
-### `styles [query]`
+### `sets [query]`
 `--kind`, `--tag <a,b>` (all must match), `--themeable`, `--has-background` /
 `--no-background`, `--color <hex>` (RGB distance ≤ 50, closest first),
 `--private` (key owner's private illustration styles), `--limit <n>`, `--json`.
@@ -85,7 +85,7 @@ key is `styles`, not `results`, and it lists icon sets and font families too.
 "not found in any registry" message.
 
 ### `facets`
-`--kind`, `--json`. Payload: `{ kind, registryVersions, styleCount, kinds { illustration, icon, font }, tags[], tagCounts, themeableSlots[], themeableSlotCounts, hasBackground { true, false }, scripts { <script>: families }, weights { <weight>: styles }, grids { <px>: sets }, strokes { <width>: sets } }`.
+`--kind`, `--json`. Payload: `{ kind, registryVersions, setCount, kinds { illustration, icon, font }, tags[], tagCounts, themeableSlots[], themeableSlotCounts, hasBackground { true, false }, scripts { <script>: families }, weights { <weight>: styles }, grids { <px>: sets }, strokes { <width>: sets } }`.
 Kind-specific buckets are always present and empty when no set of that kind
 matched. (The text renderer prints only the shared buckets — use `--json` for
 `grids`/`strokes`.)

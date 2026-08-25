@@ -24,7 +24,7 @@ sentence.
 | Tool | Input | Output |
 |---|---|---|
 | `search` | `query`, `kind?` (`illustration` \| `icon` \| `font` \| `all`, default `all`), `color?` (hex), `tag?` (comma-separated, all must match), `limit?` (5, max 25), `previewCount?` (3, max 8) | `{ query, kind, registryVersions, unavailable?, results[] }` + an inline preview image for the first `previewCount` results |
-| `show` | `slug`, `kind?` (`illustration` \| `icon` \| `font`; default probes all) | the `show` payload (palette, themeable slots, items, `install`, `installWithColors`) + cover image. For an icon set the icons come back in the `illustrations[]` array |
+| `show` | `slug`, `kind?` (`illustration` \| `icon` \| `font`; default probes all) | the `show` payload (palette, themeable slots, items, `install`, `installWithColors`) + cover image. For an icon set the icons come back in the `items[]` array |
 | `facets` | `kind?` | tags, themeable slots, background counts, font scripts/weights, icon grids/strokes |
 | `add` | `slug`, `kind?`, `autoColor?` (hex list), `colors?` (`{ slot: hex }`), `bake?`, `format?`, `emit?`, `dir?`, `dryRun?`, `projectDir?` (stdio) | stdio: the `add` payload (`status`, `outDir`, `autoColors`, `attributionFile`, …) plus `projectDir`. Hosted: `{ slug, kind, name, command, license, files[], warnings[] }` |
 | `quote` | `useCase` (`illustration` \| `edit` \| `style`), `model?`, `count?`, `withReferenceImage?` | `{ estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient }` |

@@ -182,12 +182,10 @@ to them. `--auto-color` / `--colors` are ignored for fonts.
     `@font-face` rules; link or import that stylesheet and use
     `font-family: "<family>"`.
 - **`index.ts`** (or `.d.ts`) next to the files when `tsconfig.json` exists, so
-  imports are typed. `--emit none|ts|dts` overrides. Exports per kind:
-  - illustrations — `IllustrationSlug`, `paths`, `IllustrationPaths`,
-    `palette`, `PaletteSlotName`;
-  - icons — `IconName`, `icons`, `IconPaths`, `palette`, `PaletteSlotName`,
-    and `sprite` only when the set ships one;
-  - fonts — `fontFamily`, `fontCss`, `fontFiles`.
+  imports are typed. `--emit none|ts|dts` overrides. Every kind exports
+  `AssetName`, `paths`, and `AssetPaths`; illustrations and icons also export
+  `palette` and `PaletteSlotName`. Icons add `sprite` when supplied; fonts add
+  `family` and `stylesheet`.
 - **`.artifisiorc.json`** at the project root — commit it. It pins each set's
   version and manifest hash so installs reproduce; don't hand-edit the
   CLI-managed `version` / `manifestHash`.
