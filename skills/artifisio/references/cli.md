@@ -195,12 +195,17 @@ the cap → exit 1 (plain error, no `code`). Every real spend is appended to
 ## Auth
 
 ### `auth [api-key]`
-`--stdin`, `--json`. Keys start with `artf_`, are minted at
+No argument: browser sign-in (OAuth + PKCE, loopback callback; progress on
+stderr) → `{ source: "oauth", plan, creditsRemaining }`. With a key
+(`--stdin`, `--json`): keys start with `artf_`, are minted at
 <https://artifisio.com/profile>, and are stored in
-`~/.artifisio/config.json` (0600).
+`~/.artifisio/config.json` (0600) → `{ source: "file" }`.
+
+### `logout`
+`--json`. Revokes the browser sign-in and forgets any stored key → `{}`.
 
 ### `whoami`
-`--verify`, `--json`. `{ apiKey: "<masked>" | null, source: env | file }`;
+`--verify`, `--json`. `{ apiKey: "<masked>" | null, source: env | file | oauth }`;
 with `--verify`: `+ { verified: true, plan: sparkle | willow | supernova, creditsRemaining, autoRecharge { enabled, amountCredits }, capabilities { canGenerate, canSavePrivateStyle, canAccessPrivateSets } }`.
 
 ## Files
@@ -238,5 +243,5 @@ network call with `code: "offline_network_required"`. Offline-capable:
 
 ## Environment
 
-`ARTIFISIO_API_KEY` (beats the stored key), `ARTIFISIO_API_BASE` (API base
+`ARTIFISIO_API_KEY` (beats the stored key and the browser sign-in), `ARTIFISIO_API_BASE` (API base
 URL, default `https://artifisio.com/api/dev`).

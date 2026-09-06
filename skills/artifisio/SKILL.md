@@ -104,7 +104,7 @@ npx artifisio add <slug> --kind font --json                     # fonts: no colo
   (no download, no config). **Illustration sets only** — it errors on icon and
   font sets.
 
-### Flow B — generate a style (costs credits, needs an API key)
+### Flow B — generate a style (costs credits, needs a sign-in or API key)
 
 Only when Flow A found nothing close. Generation spends the user's money —
 read "Spending discipline" first.
@@ -235,12 +235,14 @@ All four commands work across every kind and are CLI-only.
 
 ## Auth (private sets and generation only)
 
-`npx artifisio auth <key>` stores the key in `~/.artifisio/config.json` (or
-`--stdin` for CI); the `ARTIFISIO_API_KEY` env var takes precedence. The MCP
-server reads the same places, so one `auth` covers both. Keys are minted at
+`npx artifisio auth` signs in through the browser and stores the tokens in
+`~/.artifisio/config.json`; `npx artifisio auth <key>` (or `--stdin` for CI)
+stores an API key instead, and the `ARTIFISIO_API_KEY` env var takes
+precedence over both. The MCP server reads the same places, so one `auth`
+covers both; `npx artifisio logout` forgets everything. Keys are minted at
 artifisio.com → your profile (https://artifisio.com/profile). `--private` on
-`add` / `styles` targets the key owner's private sets — always illustration
-styles.
+`add` / `styles` targets the signed-in user's private sets — always
+illustration styles.
 
 ## Reference
 

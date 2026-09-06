@@ -5,9 +5,11 @@ same three registries (illustrations, icons, fonts). Two transports:
 
 - **stdio** (`npx -y @artifisio/mcp`): runs inside the project and writes files
   exactly like the CLI. Honours `--project-dir <dir>` / `ARTIFISIO_PROJECT_DIR`
-  and the same `~/.artifisio/config.json` key store as `artifisio auth`.
+  and the same `~/.artifisio/config.json` credentials as `artifisio auth`
+  (browser sign-in or API key).
 - **hosted** (`https://artifisio.com/api/mcp`): for hosts without a shell.
-  Discovery only unless an `Authorization: Bearer artf_…` header is set. Never
+  Sign in through the host's OAuth prompt, or send an
+  `Authorization: Bearer artf_…` header — one of the two is required. Never
   writes files — `add` returns the `npx artifisio add …` command and CDN URLs.
 
 The server registers **exactly six tools**: `search`, `show`, `facets`, `add`,
