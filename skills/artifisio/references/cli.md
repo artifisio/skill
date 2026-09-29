@@ -167,17 +167,21 @@ font files plus `<slug>.css`. `--network` probes the raw manifest and the CDN
 mirror of **every** registry kind plus the API, so a 404 on one kind is visible
 even when the others are healthy.
 
-## Generation (API key + credits) — illustrations only
+## Generation (API key + credits) — illustrations, images and logos
 
-`generate illustration <style>` · `generate edit` · `generate style`
+`generate illustration <style>` · `generate image` · `generate edit` · `generate style`
 
-There is **no icon or font generation**; these three use-cases produce
-illustration artwork.
+There is **no icon or font generation**; these use-cases produce raster
+artwork (`image` binds to no style).
 
 Common: `-p/--prompt <text>` (required), `-m/--model <id>`, `-n/--count <n>`,
 `-o/--out <dir>` (default `./generations/<timestamp>`), `--no-download`,
 `--dry-run` (quote only), `--max-credits <n>`, `--no-preflight`, `--json`.
-`illustration` / `edit`: `-i/--image <url...>`, `--image-file <path...>`.
+`illustration` / `image` / `edit`: `-i/--image <url...>`, `--image-file <path...>`
+(`edit` needs at least one).
+`image` / `edit`: `--aspect <ratio>` (`1:1` `3:2` `2:3` `4:3` `3:4` `16:9` `9:16` `21:9`),
+`--size 1K|2K|4K` — the nearest the model supports (`models --json` lists
+`aspectRatios` / `sizes`).
 `illustration`: `--iteration`, `--no-style-grid`.
 `style`: `--enhance none|concept|planned` (concept), `--save-as <name>`,
 `--then-add`, `--then-generate <prompt>`.
@@ -185,8 +189,27 @@ Common: `-p/--prompt <text>` (required), `-m/--model <id>`, `-n/--count <n>`,
 Payloads:
 - `--dry-run`: `{ dryRun: true, quote { useCase, modelId, count, estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient } }`.
 - `illustration`: `{ images[], id?, savedTo[] | null, totalCostInCents }`.
-- `edit`: `{ images[], savedTo, totalCostInCents }`.
+- `image` / `edit`: `{ images[], id?, savedTo, totalCostInCents }`.
 - `style`: `{ images[], id?, prompt, rawPrompt, savedTo, totalCostInCents, savedAs { slug, id, installHint } | null, added { status, outDir } | null, firstIllustration { images, savedTo, totalCostInCents } | null }`.
+
+`logo "<name>" --brief <text>` (brief required) explores logo concepts:
+`--tagline <text>`, `--colors "#hex,#hex"`, `-n 1..8` (default 4, also what
+the preflight quotes), `-m`, `-o <dir>` (default `./generations/logos/<id>`),
+`--no-download`, `--dry-run`, `--max-credits`, `--no-preflight`, `--json`.
+Payload: `{ id, concepts[] { index, direction, url }, contactSheetUrl, savedTo[] | null, totalCostInCents }`;
+files are `concept-<index>.<ext>`, then `contact-sheet.<ext>` (all concepts
+numbered). URLs open in a browser. Logos stay private and never reach a registry.
+
+`logo finalize <id> --concept <index>` builds the brand pack for one concept:
+`-o <dir>` (default `./public/brand`), `--no-download`, `--dry-run`,
+`--max-credits`, `--no-preflight`, `--json`. It quotes `logo-finalize` on the
+logo's model, then waits for the run (a minute or two).
+Payload: `{ id, concept, reused, pack { name, palette, files, head, license, disclaimer }, zip, savedTo[] | null, head, totalCostInCents }`.
+A concept already finalized is downloaded again with `reused: true` and no
+charge; one still being finalized is waited on, also uncharged. Rerunning after
+a failed finalize tries again.
+`totalCostInCents` is always what building the pack cost. `head` is the
+`<head>` tags for where the pack was saved, `null` outside a `public/` folder.
 
 Budget: `sufficient: false` → exit 2 `insufficient_credits`; estimate above
 the cap → exit 1 (plain error, no `code`). Every real spend is appended to

@@ -127,6 +127,41 @@ npx artifisio generate illustration <savedAs.slug> -p "empty cart" --max-credits
 call. Generated files land in `./generations/<timestamp>` (`-o <dir>` to
 change); installed private sets go to the same output dir as public ones.
 
+For a one-off project image (hero, OG image, blog art) that no registry style
+fits, use `npx artifisio generate image -p "<subject>" --aspect 16:9 --size 2K
+--max-credits 20 --json` instead of creating a style.
+
+### Need a logo?
+
+Logos are private to the user's account and never published. Explore concepts
+first (4 by default, `-n` up to 8):
+
+```bash
+npx artifisio logo "<Name>" --brief "<what it is, how it should feel>" \
+  --colors "#1F3A5F,#F2B84B" --max-credits 40 --json
+```
+
+Each concept is saved as `generations/logos/<id>/concept-<index>.png`, with
+its design `direction` and a browser-viewable `url` in the JSON, and
+`contactSheetUrl` shows them all numbered side by side (saved last in
+`savedTo`). Show the user a table of index, direction and `url` as a link, plus
+the contact sheet link; if `timg`, `chafa`, `viu` or kitty is installed, also
+show the contact sheet inline with it. Keep the logo `id` and the chosen
+concept's `index`. Then build the brand pack from that concept (it takes a
+minute or two):
+
+```bash
+npx artifisio logo finalize <id> --concept <index> --max-credits 40 --json
+```
+
+It writes `public/brand/` (`-o` for another folder, e.g. a CLI tool's
+`assets/brand`): `mark.svg`, `wordmark.svg`, horizontal and stacked lockups
+(plus `-mono` and `-reversed`), favicons, app icons, `og.png` and `brand.json`.
+For a website, paste `head` (set only when the pack lands under `public/`) into
+its `<head>`. Tell the user `totalCostInCents` and `pack.disclaimer`: no
+trademark search was run. Finalizing the same concept again is free, so re-run
+it rather than copying files around.
+
 ## Spending discipline (before any `generate`)
 
 1 credit = US $0.01. Treat every `generate*` call as a purchase.
