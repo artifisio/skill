@@ -145,8 +145,10 @@ Each concept is saved as `generations/logos/<id>/concept-<index>.png`, with
 its design `direction` and a browser-viewable `url` in the JSON, and
 `contactSheetUrl` shows them all numbered side by side (saved last in
 `savedTo`). Show the user a table of index, direction and `url` as a link, plus
-the contact sheet link; if `timg`, `chafa`, `viu` or kitty is installed, also
-show the contact sheet inline with it. Keep the logo `id` and the chosen
+the contact sheet link; if `timg`, `chafa`, `viu`, kitty or iTerm2 is
+available, give the user the command that shows the contact sheet in their own
+terminal (running it yourself prints raw escape codes, not the image). Recommend one, but let the user choose
+unless they left the choice to you. Keep the logo `id` and the chosen
 concept's `index`. Then build the brand pack from that concept (it takes a
 minute or two):
 
@@ -158,7 +160,7 @@ It writes `public/brand/` (`-o` for another folder, e.g. a CLI tool's
 `assets/brand`): `mark.svg`, `wordmark.svg`, horizontal and stacked lockups
 (plus `-mono` and `-reversed`), favicons, app icons, `og.png` and `brand.json`.
 For a website, paste `head` (set only when the pack lands under `public/`) into
-its `<head>`. Tell the user `totalCostInCents` and `pack.disclaimer`: no
+its `<head>`. Show the user `pack.files["og.png"].url` as a link to preview the logo, and tell them `totalCostInCents` and `pack.disclaimer`: no
 trademark search was run. Finalizing the same concept again is free, so re-run
 it rather than copying files around.
 
