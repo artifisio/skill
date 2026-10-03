@@ -168,12 +168,12 @@ font files plus `<slug>.css`. `--network` probes the raw manifest and the CDN
 mirror of **every** registry kind plus the API, so a 404 on one kind is visible
 even when the others are healthy.
 
-## Generation (API key + credits) — illustrations, images and logos
+## Generation (API key + credits) — illustrations, images, icon sets, fonts and logos
 
 `generate illustration <style>` · `generate image` · `generate edit` · `generate style`
 
-There is **no icon or font generation**; these use-cases produce raster
-artwork (`image` binds to no style).
+These use-cases produce raster artwork (`image` binds to no style); icon sets
+are `generate icons` and typefaces `generate font` (below).
 
 Common: `-p/--prompt <text>` (required), `-m/--model <id>`, `-n/--count <n>`,
 `-o/--out <dir>` (default `./generations/<timestamp>`), `--no-download`,
@@ -192,6 +192,33 @@ Payloads:
 - `illustration`: `{ images[], id?, savedTo[] | null, totalCostInCents }`.
 - `image` / `edit`: `{ images[], id?, savedTo, totalCostInCents }`.
 - `style`: `{ images[], id?, prompt, rawPrompt, savedTo, totalCostInCents, savedAs { slug, id, installHint } | null, added { status, outDir } | null, firstIllustration { images, savedTo, totalCostInCents } | null }`.
+
+`generate icons -p <style brief> --icon <name|name=hint>...` generates an icon
+set on one sheet, traced to SVG and saved as your private icon set:
+`--fill outline|solid|duotone`, `--accent "#hex"` (duotone), `--stroke <n>`,
+`--name <set name>`, `--size 1K|2K|4K` (sheet), `-m`, `-o <dir>` (default
+`./generations/icons/<id>`), `--no-download`, `--dry-run`, `--max-credits`,
+`--no-preflight`, `--json`. The quote's `count` is the number of icons, priced
+as one sheet. It waits for the run (~3 minutes); `--collect <id>` picks up a
+run started earlier, free. Payload: `{ id, name, slug, icons[] { name, svgUrl },
+missing[], sheetUrl, palette, savedTo[] | null, totalCostInCents }`. Install it
+with `add <slug> --kind icon --private`. A second set while one is generating
+fails with `code: "in_progress"`.
+
+`generate font -p <brief>` explores a typeface: `-n 1..4` candidates (default
+4, also what the preflight quotes), `--name <family>` (a trademarked font name
+is refused), `--charset latin-text|latin-core|latin-caps`, `-m`, `-o <dir>`
+(default `./generations/fonts/<id>`), `--no-download`, `--dry-run`,
+`--max-credits`, `--no-preflight`, `--json`. Payload: `{ id, name, model,
+charset, candidates[] { index, url }, recommended, savedTo, totalCostInCents }`;
+`--collect <id>` picks the candidates up, free. `generate font --finalize <id>
+--candidate <n> [--name <family>]` builds the font from one candidate (quoted
+as `font-finalize`; free when that candidate is built, and `--name` then
+ignored): `{ id, candidate,
+reused, name, family, slug, files { otf, woff2 }, specimenUrl, missing[],
+savedTo, totalCostInCents }`. Install it with `add <slug> --kind font
+--private`. The id goes to stderr as soon as a step starts; one font step runs
+at a time (`code: "in_progress"`).
 
 `logo "<name>" --brief <text>` (brief required) explores logo concepts:
 `--tagline <text>`, `--colors "#hex,#hex"`, `-n 1..8` (default 4, also what

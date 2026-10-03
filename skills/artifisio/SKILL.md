@@ -2,8 +2,8 @@
 name: artifisio
 description: >-
   Find, theme and install open-licensed illustrations, icons and fonts in a
-  codebase with Artifisio — and generate a custom illustration style when
-  nothing in the registry fits — via the `artifisio` CLI (`npx artifisio`) or
+  codebase with Artifisio — and generate a custom illustration style, icon
+  set or typeface when nothing in the registry fits — via the `artifisio` CLI (`npx artifisio`) or
   the `artifisio` MCP tools. Use this skill WHENEVER a task needs artwork or
   visual assets: illustrations, SVGs, empty-state / onboarding / hero / spot
   graphics, an icon set or individual UI icons (arrows, chevrons, settings,
@@ -109,10 +109,7 @@ npx artifisio add <slug> --kind font --json                     # fonts: no colo
 Only when Flow A found nothing close. Generation spends the user's money —
 read "Spending discipline" first.
 
-**Generation produces illustrations only.** There is no icon or font
-generation: if the icon or font registries have nothing that fits, say so and
-fall back to the project's existing assets rather than trying to generate a
-set.
+This flow makes illustrations; icon sets and typefaces have their own (below).
 
 ```bash
 # quote, then run with a cap; the returned savedAs.slug is a private style
@@ -130,6 +127,51 @@ change); installed private sets go to the same output dir as public ones.
 For a one-off project image (hero, OG image, blog art) that no registry style
 fits, use `npx artifisio generate image -p "<subject>" --aspect 16:9 --size 2K
 --max-credits 20 --json` instead of creating a style.
+
+### Need an icon set nothing in the registry has?
+
+Generate one from a style brief plus the icons you need. They are drawn
+together on one sheet (one consistent style), traced to SVG and saved as the
+user's private icon set; a set costs one sheet whatever it holds and takes
+about three minutes:
+
+```bash
+npx artifisio generate icons -p "rounded outline, friendly, 2px strokes" \
+  --icon home search "cart=a shopping cart" settings --max-credits 30 --json
+# parse slug (never guess it), then install it like any icon set:
+npx artifisio add <slug> --kind icon --private --auto-color "#6366F1" --json
+```
+
+Use `name=hint` when the name alone does not say what to draw; `--fill
+solid|duotone` (duotone needs `--accent "#hex"`). Tell the user which icons
+came back `missing` and what it cost. If the command stops early, `generate
+icons --collect <id>` picks the set up for free. One icon set generates at a
+time per account. In an MCP host: `generate` with `useCase: "icons"`, then
+`add` with `kind: "icon"`, `private: true`.
+
+### Need a typeface nothing in the registry has?
+
+Two charged steps, like a logo. First the brief becomes candidate specimens
+(4 by default, `-n` 1–4), each the same text in one design:
+
+```bash
+npx artifisio generate font -p "warm humanist sans for a reading app" \
+  --name "Harbor" --max-credits 30 --json
+# show the user every candidate URL, recommend one (`recommended`), let them pick
+npx artifisio generate font --finalize <id> --candidate <n> --max-credits 30 --json
+# parse slug (never guess it), then install it like any font set:
+npx artifisio add <slug> --kind font --private --json
+```
+
+The family name may not be a trademarked font name (the API refuses
+Helvetica, Futura, …); the brief may still name them as references. The font is
+Latin (`--charset latin-text|latin-core|latin-caps`), OFL-licensed and private
+to the user. Tell the user which glyphs came back `missing` and what each step
+cost. Each step takes minutes: `--collect <id>` (candidates) or the same
+`--finalize` command (the build) picks it up for free, and finalizing a
+candidate already built is free. One font step runs at a time per account. In
+an MCP host: `generate` with `useCase: "font"`, then `fontId` + `candidate`,
+then `add` with `kind: "font"`, `private: true`.
 
 ### Need a logo?
 
@@ -244,11 +286,13 @@ Every `--json` response is an envelope: `{ "apiVersion": 1, "ok": true, … }` o
 first; surface `error` verbatim — messages include concrete next steps. A
 bumped `apiVersion` means a breaking shape change.
 
-- CLI `code`s: `insufficient_credits` (exit 2), `offline_no_cache`,
-  `offline_network_required`. Most other failures carry no `code` — read
-  `error`.
+- CLI `code`s: `insufficient_credits` (exit 2), `in_progress` (a generation
+  of that kind is already running; collect it by the `id` in the payload),
+  `offline_no_cache`, `offline_network_required`. Most other failures carry
+  no `code` — read `error`.
 - MCP error `code`s: `insufficient_credits`, `over_budget`, `no_api_key`,
-  `not_found`, `network`, plus the two offline codes forwarded from the CLI
+  `not_found`, `network`, `in_progress`, `generation_failed` (the run failed,
+  nothing was charged), plus the two offline codes forwarded from the CLI
   core.
 
 Network down? `--offline` serves the cached registry manifests; `search`
@@ -278,8 +322,9 @@ stores an API key instead, and the `ARTIFISIO_API_KEY` env var takes
 precedence over both. The MCP server reads the same places, so one `auth`
 covers both; `npx artifisio logout` forgets everything. Keys are minted at
 artifisio.com → your profile (https://artifisio.com/profile). `--private` on
-`add` / `styles` targets the signed-in user's private sets — always
-illustration styles.
+`add` targets the signed-in user's private sets: illustration styles, icon
+sets with `--kind icon`, or fonts with `--kind font`; on `sets` it lists
+private illustration styles.
 
 ## Reference
 
