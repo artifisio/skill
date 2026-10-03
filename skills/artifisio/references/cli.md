@@ -91,7 +91,8 @@ matched. (The text renderer prints only the shared buckets — use `--json` for
 `grids`/`strokes`.)
 
 ### `models`
-`--json`. Payload: `{ defaultModel, models[] { id, label, family, pricing, pricingHint?, metrics?, requiresInputImage?, isDefault? }, source: "api" | "fallback", warning? }`.
+`--json`. Payload: `{ defaultModel, models[] { id, label, family, pricing, pricingHint?, metrics?, requiresInputImage?, isDefault?, recommendedFor? { useCase, rank }[] }, source: "api" | "fallback", warning? }`.
+`recommendedFor` names the use cases (`illustration`, `image`, `free-edit`, `style-creation`, …) a model suits best; rank 1 is what runs when that use case's command gets no `-m`. `logo-finalize` always reuses the model the logo was explored with.
 
 ## Project setup
 
