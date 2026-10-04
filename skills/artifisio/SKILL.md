@@ -144,7 +144,9 @@ npx artifisio add <slug> --kind icon --private --auto-color "#6366F1" --json
 
 Use `name=hint` when the name alone does not say what to draw; `--fill
 solid|duotone` (duotone needs `--accent "#hex"`). Tell the user which icons
-came back `missing` and what it cost. If the command stops early, `generate
+came back `missing` and what it cost, and show them the `extras`: icons that
+filled the rest of the sheet, outside the set. To keep an extra, the user
+restores it at `manageUrl`, then `add --private` installs it. If the command stops early, `generate
 icons --collect <id>` picks the set up for free. One icon set generates at a
 time per account. In an MCP host: `generate` with `useCase: "icons"`, then
 `add` with `kind: "icon"`, `private: true`.

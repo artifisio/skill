@@ -29,7 +29,7 @@ sentence.
 | `show` | `slug`, `kind?` (`illustration` \| `icon` \| `font`; default probes all) | the `show` payload (palette, themeable slots, items, `install`, `installWithColors`) + cover image. For an icon set the icons come back in the `items[]` array |
 | `facets` | `kind?` | tags, themeable slots, background counts, font scripts/weights, icon grids/strokes |
 | `add` | `slug`, `kind?`, `private?` (your private sets: illustrations, icons with `kind: "icon"` or fonts with `kind: "font"`), `autoColor?` (hex list), `colors?` (`{ slot: hex }`), `bake?`, `format?`, `emit?`, `dir?`, `dryRun?`, `projectDir?` (stdio) | stdio: the `add` payload (`status`, `outDir`, `autoColors`, `attributionFile`, …) plus `projectDir`. Hosted: `{ slug, kind, name, command, license, files[], warnings[] }` |
-| `quote` | `useCase` (`illustration` \| `image` \| `edit` \| `style` \| `logo` \| `icons` \| `font`), `model?`, `count?` (`font`: the candidates), `icons?` (for `icons`, quoted at `icons.length`), `withReferenceImage?`, `aspectRatio?`, `size?` | `{ estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient }` |
+| `quote` | `useCase` (`illustration` \| `image` \| `edit` \| `style` \| `logo` \| `icons` \| `font`), `model?`, `count?` (`font`: the candidates), `icons?` (for `icons`, quoted at `icons.length`), `withReferenceImage?`, `referenceImages?` (how many reference images, each priced), `aspectRatio?`, `size?` | `{ estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient }` |
 | `generate` | `useCase`, `prompt`, `style?` (required for `illustration`), `name?` / `tagline?` / `colors?` (logo explore), `logoId?` + `concept?` (logo finalize), `icons?` + `fill?` + `accent?` + `stroke?` + `iconSetId?` (icons; `name` is the set name), `fontId?` + `candidate?` + `charset?` (font; `name` is the family name), `model?`, `count?`, `imageUrls?` (required for `edit`), `aspectRatio?` / `size?` (image, edit; `size` is the sheet resolution for icons), `enhance?` (style), `saveAs?` (style), `maxCredits?`, `dryRun?`, `inlineImages?`, stdio only: `download?`, `projectDir?` | the matching CLI `generate` payload + inline images; after `saveAs`, a `next` hint with the `add … --private` command (private sets are installed through the CLI) |
 
 Notes that bite:
@@ -57,7 +57,9 @@ Notes that bite:
 - `useCase: "icons"`: the style brief as `prompt` plus `icons` (names or
   `{ name, hint }`), optional `fill` / `accent` / `stroke`. The result is the
   user's private icon set: `{ id, status: "ready", slug, icons[] { name, svgUrl },
-  missing, sheetUrl, totalCostInCents, next }`; install it with `add` and
+  missing, extras[] { name, svgUrl }, manageUrl, sheetUrl, totalCostInCents, next }`;
+  `extras` filled the rest of the sheet and are not in the set (to keep one,
+  restore it at `manageUrl`); install it with `add` and
   `kind: "icon"`, `private: true` (hosted: run the `npx artifisio add … --kind
   icon --private` command in `next`). A run takes about three minutes, so a call answers
   `status: "generating"` after 45 seconds — call again with `iconSetId` after

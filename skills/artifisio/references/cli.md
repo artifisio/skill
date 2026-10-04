@@ -201,7 +201,9 @@ set on one sheet, traced to SVG and saved as your private icon set:
 `--no-preflight`, `--json`. The quote's `count` is the number of icons, priced
 as one sheet. It waits for the run (~3 minutes); `--collect <id>` picks up a
 run started earlier, free. Payload: `{ id, name, slug, icons[] { name, svgUrl },
-missing[], sheetUrl, palette, savedTo[] | null, totalCostInCents }`. Install it
+missing[], extras[] { name, svgUrl }, manageUrl, sheetUrl, palette, savedTo[] | null,
+totalCostInCents }`; `extras` filled the rest of the sheet and are not in the set:
+to keep an extra, restore it at `manageUrl`, then `add --private`. Install it
 with `add <slug> --kind icon --private`. A second set while one is generating
 fails with `code: "in_progress"`.
 
