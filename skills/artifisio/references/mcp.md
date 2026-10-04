@@ -30,7 +30,7 @@ sentence.
 | `facets` | `kind?` | tags, themeable slots, background counts, font scripts/weights, icon grids/strokes |
 | `add` | `slug`, `kind?`, `private?` (your private sets: illustrations, icons with `kind: "icon"` or fonts with `kind: "font"`), `autoColor?` (hex list), `colors?` (`{ slot: hex }`), `bake?`, `format?`, `emit?`, `dir?`, `dryRun?`, `projectDir?` (stdio) | stdio: the `add` payload (`status`, `outDir`, `autoColors`, `attributionFile`, …) plus `projectDir`. Hosted: `{ slug, kind, name, command, license, files[], warnings[] }` |
 | `quote` | `useCase` (`illustration` \| `image` \| `edit` \| `style` \| `logo` \| `icons` \| `font`), `model?`, `count?` (`font`: the candidates), `icons?` (for `icons`, quoted at `icons.length`), `withReferenceImage?`, `referenceImages?` (how many reference images, each priced), `aspectRatio?`, `size?` | `{ estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient }` |
-| `generate` | `useCase`, `prompt`, `style?` (required for `illustration`), `name?` / `tagline?` / `colors?` (logo explore), `logoId?` + `concept?` (logo finalize), `icons?` + `fill?` + `accent?` + `stroke?` + `iconSetId?` (icons; `name` is the set name), `fontId?` + `candidate?` + `charset?` (font; `name` is the family name), `model?`, `count?`, `imageUrls?` (required for `edit`), `aspectRatio?` / `size?` (image, edit; `size` is the sheet resolution for icons), `enhance?` (style), `saveAs?` (style), `maxCredits?`, `dryRun?`, `inlineImages?`, stdio only: `download?`, `projectDir?` | the matching CLI `generate` payload + inline images; after `saveAs`, a `next` hint with the `add … --private` command (private sets are installed through the CLI) |
+| `generate` | `useCase`, `prompt`, `style?` (required for `illustration`), `name?` / `tagline?` / `colors?` (logo explore), `logoId?` + `concept?` (logo finalize; plus `refine?`, the change, to refine that concept instead), `icons?` + `fill?` + `accent?` + `stroke?` + `iconSetId?` (icons; `name` is the set name), `fontId?` + `candidate?` + `charset?` (font; `name` is the family name), `model?`, `count?`, `imageUrls?` (required for `edit`), `aspectRatio?` / `size?` (image, edit; `size` is the sheet resolution for icons), `enhance?` (style), `saveAs?` (style), `maxCredits?`, `dryRun?`, `inlineImages?`, stdio only: `download?`, `projectDir?` | the matching CLI `generate` payload + inline images; after `saveAs`, a `next` hint with the `add … --private` command (private sets are installed through the CLI) |
 
 Notes that bite:
 
@@ -41,11 +41,17 @@ Notes that bite:
   `bake` only; if you passed `dir` or `emit`, add them to the command yourself.
 - `generate` covers illustration use-cases (`illustration`, `image`, `edit`,
   `style`) and logo concepts (`logo`: `name` + the brief as `prompt`, optional
-  `tagline` / `colors`; returns `{ id, concepts[] { index, direction, url },
-  contactSheetUrl, next }`, quoted at 4 unless `count` says otherwise — show
-  the user a table with each `url` as a link plus the contact sheet), and their
-  brand pack (`logo` + `logoId` + `concept`; stdio writes it to `public/brand`
-  and adds `head`; hosted waits up to 45 seconds, then answers
+  `tagline` / `colors`; returns `{ id, concepts[] { index, direction, url,
+  misspelledAs? }, contactSheetUrl, next }`, each concept a brand board, quoted
+  at 3 unless `count` says otherwise — show the user a table with each `url` as
+  a link plus the contact sheet, and flag any `misspelledAs`), a change to
+  one before finalizing it (`logo` + `logoId` + `concept` + `refine`: that
+  board drawn again with only the change, returned like an explore with the new
+  concept alone; the change goes in `refine`, at most 500 characters, never
+  in `prompt`, which is ignored with `logoId`), and their brand pack
+  (`logo` + `logoId` + `concept`; stdio writes it to `public/brand`
+  and adds `head`; hosted waits up to 45 seconds, usually enough for a pack
+  cut from a brand board, then answers
   `status: "finalizing"` with `retryAfterSeconds` — call again then for the
   file URLs, a zip and the free `npx artifisio logo finalize … --out <dir>`
   download command; follow `next`, since a call made while another concept is

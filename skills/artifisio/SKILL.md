@@ -180,23 +180,35 @@ One font step runs at a time per account. In an MCP host: `generate` with
 ### Need a logo?
 
 Logos are private to the user's account and never published. Explore concepts
-first (4 by default, `-n` up to 8):
+first (3 by default, `-n` up to 8):
 
 ```bash
 npx artifisio logo "<Name>" --brief "<what it is, how it should feel>" \
-  --colors "#1F3A5F,#F2B84B" --max-credits 40 --json
+  --colors "#1F3A5F,#F2B84B" --max-credits 80 --json
 ```
 
-Each concept is saved as `generations/logos/<id>/concept-<index>.png`, with
-its design `direction` and a browser-viewable `url` in the JSON, and
+Each concept is a brand board (symbol, wordmark, lockup, app icon) saved as
+`generations/logos/<id>/concept-<index>.png`, with its design `direction` and a
+browser-viewable `url` in the JSON, and
 `contactSheetUrl` shows them all numbered side by side (saved last in
 `savedTo`). Show the user a table of index, direction and `url` as a link, plus
 the contact sheet link; if `timg`, `chafa`, `viu`, kitty or iTerm2 is
 available, give the user the command that shows the contact sheet in their own
-terminal (running it yourself prints raw escape codes, not the image). Recommend one, but let the user choose
+terminal (running it yourself prints raw escape codes, not the image). A
+concept with `misspelledAs` has a wordmark that reads that instead of the name:
+say so and don't recommend it. Recommend one, but let the user choose
 unless they left the choice to you. Keep the logo `id` and the chosen
-concept's `index`. Then build the brand pack from that concept (it takes a
-minute or two):
+concept's `index`. If the user wants it changed first ("warmer colours",
+"thicker strokes"), refine it rather than exploring again: one board, kept as
+a new concept with its own `index`, the original untouched:
+
+```bash
+npx artifisio logo refine <id> --concept <index> --prompt "<the change>" --max-credits 20 --json
+```
+
+Show the new concept beside the one it came from. Then build the brand pack
+from the chosen concept (usually under a minute: it vectorises the board's own
+symbol and wordmark):
 
 ```bash
 npx artifisio logo finalize <id> --concept <index> --max-credits 40 --json

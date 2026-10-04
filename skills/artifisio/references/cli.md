@@ -92,7 +92,7 @@ matched. (The text renderer prints only the shared buckets — use `--json` for
 
 ### `models`
 `--json`. Payload: `{ defaultModel, models[] { id, label, family, pricing, pricingHint?, metrics?, requiresInputImage?, isDefault?, recommendedFor? { useCase, rank }[] }, source: "api" | "fallback", warning? }`.
-`recommendedFor` names the use cases (`illustration`, `image`, `free-edit`, `style-creation`, …) a model suits best; rank 1 is what runs when that use case's command gets no `-m`. `logo-finalize` always reuses the model the logo was explored with.
+`recommendedFor` names the use cases (`illustration`, `image`, `free-edit`, `style-creation`, …) a model suits best; rank 1 is what runs when that use case's command gets no `-m`. `logo-finalize` always reuses the model the logo was explored with, and `logo-refine` does without `-m`.
 
 ## Project setup
 
@@ -223,17 +223,26 @@ savedTo, totalCostInCents }`. Install it with `add <slug> --kind font
 at a time (`code: "in_progress"`).
 
 `logo "<name>" --brief <text>` (brief required) explores logo concepts:
-`--tagline <text>`, `--colors "#hex,#hex"`, `-n 1..8` (default 4, also what
+`--tagline <text>`, `--colors "#hex,#hex"`, `-n 1..8` (default 3, also what
 the preflight quotes), `-m`, `-o <dir>` (default `./generations/logos/<id>`),
 `--no-download`, `--dry-run`, `--max-credits`, `--no-preflight`, `--json`.
-Payload: `{ id, concepts[] { index, direction, url }, contactSheetUrl, savedTo[] | null, totalCostInCents }`;
-files are `concept-<index>.<ext>`, then `contact-sheet.<ext>` (all concepts
-numbered). URLs open in a browser. Logos stay private and never reach a registry.
+Payload: `{ id, concepts[] { index, direction, url, misspelledAs? }, contactSheetUrl, savedTo[] | null, totalCostInCents }`;
+files are `concept-<index>.<ext>` (each a brand board: symbol, wordmark,
+lockup, app icon), then `contact-sheet.<ext>` (all concepts numbered).
+`misspelledAs` marks a concept whose wordmark misspells the name. URLs open in a browser. Logos stay private and never reach a registry.
+
+`logo refine <id> --concept <index> --prompt "<change>"` draws that concept's
+board again with only the change and keeps it as a new concept (one board,
+about 20–30 s; the change at most 500 characters; no refine once a logo holds 16 concepts): `-m` (default: the logo's model),
+`-o <dir>`, `--no-download`, `--dry-run`, `--max-credits`, `--no-preflight`,
+`--json`. It quotes `logo-refine`. Payload: `logo`'s, with `concepts` holding
+the new concept alone and `contactSheetUrl` numbering every concept.
 
 `logo finalize <id> --concept <index>` builds the brand pack for one concept:
 `-o <dir>` (default `./public/brand`), `--no-download`, `--dry-run`,
 `--max-credits`, `--no-preflight`, `--json`. It quotes `logo-finalize` on the
-logo's model, then waits for the run (a minute or two).
+logo's model, then waits for the run (under a minute from a brand board; a
+minute or two when it must redraw the mark and wordmark, which costs more).
 Payload: `{ id, concept, reused, pack { name, palette, files, head, license, disclaimer }, zip, savedTo[] | null, head, totalCostInCents }`.
 A concept already finalized is downloaded again with `reused: true` and no
 charge; one still being finalized is waited on, also uncharged. Rerunning after
