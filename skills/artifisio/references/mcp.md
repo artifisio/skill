@@ -68,12 +68,13 @@ Notes that bite:
   generating for the account; its `id` is in the error, collect it with
   `iconSetId`.
 - `useCase: "font"`: the brief as `prompt`, the family name as `name` (never a
-  trademarked font name), `count` candidates (default 4, max 4). The result
+  trademarked font name), `count` candidates (default 4, max 4; a garbled
+  specimen is redrawn once, then dropped uncharged, so fewer can come back). The result
   lists `candidates[] { index, url }` (inline images too) and `recommended`:
   show the user every candidate as a link, recommend one, let them choose, then
   call with `fontId` + `candidate` to build it (charged; free when that
   candidate is built). The build answers `{ slug, family, files { otf, woff2 },
-  specimenUrl, missing, totalCostInCents, next }`; install it with `add` and
+  specimenUrl, missing, flagged, totalCostInCents, next }`; install it with `add` and
   `kind: "font"`, `private: true`. Each step answers `status: "generating"`
   after 45 seconds — call again with `fontId` (plus `candidate` for the build)
   after `retryAfterSeconds`, free. A failed build is reported

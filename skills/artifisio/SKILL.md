@@ -154,7 +154,8 @@ time per account. In an MCP host: `generate` with `useCase: "icons"`, then
 ### Need a typeface nothing in the registry has?
 
 Two charged steps, like a logo. First the brief becomes candidate specimens
-(4 by default, `-n` 1–4), each the same text in one design:
+(4 by default, `-n` 1–4; fewer when a garbled one is dropped, uncharged), each
+the same text in one design:
 
 ```bash
 npx artifisio generate font -p "warm humanist sans for a reading app" \
@@ -168,12 +169,13 @@ npx artifisio add <slug> --kind font --private --json
 The family name may not be a trademarked font name (the API refuses
 Helvetica, Futura, …); the brief may still name them as references. The font is
 Latin (`--charset latin-text|latin-core|latin-caps`), OFL-licensed and private
-to the user. Tell the user which glyphs came back `missing` and what each step
-cost. Each step takes minutes: `--collect <id>` (candidates) or the same
-`--finalize` command (the build) picks it up for free, and finalizing a
-candidate already built is free. One font step runs at a time per account. In
-an MCP host: `generate` with `useCase: "font"`, then `fontId` + `candidate`,
-then `add` with `kind: "font"`, `private: true`.
+to the user. Tell the user which glyphs came back `missing`, which are `flagged`
+(drawn, but may look wrong — say why) and what each step cost. Each step takes
+minutes: `--collect <id>` (candidates) or the same `--finalize` command (the
+build) picks it up for free, and finalizing a candidate already built is free.
+One font step runs at a time per account. In an MCP host: `generate` with
+`useCase: "font"`, then `fontId` + `candidate`, then `add` with `kind: "font"`,
+`private: true`.
 
 ### Need a logo?
 
