@@ -325,7 +325,7 @@ All four commands work across every kind and are CLI-only.
   `{ slug, upToDate: true, … }` or
   `{ ok, slug, dryRun, added, changed, removed, skipped, errors, missingVariants, attributionFile }`.
 - `npx artifisio doctor --json` — verify files against pinned hashes, warn on
-  stale pins; exit 1 on drift (CI-friendly). `--network` also probes the
+  stale pins; exit 1 on drift (CI-friendly); `update <set> --force` repairs it. `--network` also probes the
   registries.
 - `npx artifisio remove <set…> --json` — delete files + config entry
   (`--keep-files` to drop only the entry); `ATTRIBUTION.md` is regenerated.

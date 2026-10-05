@@ -144,7 +144,7 @@ Premium items are listed in the registry but excluded from a free install
 Payload: `{ mode: "preview-colors", slug, illustrationSlug, previewPath, colors, autoColors }`.
 
 ### `update <set...>`
-`--dry-run`, `--keep-orphans`, `--format`, `--registry-version <ref>`, `--json`.
+`--dry-run`, `--keep-orphans`, `--force` (restore locally edited or deleted files of an up-to-date set), `--format`, `--registry-version <ref>`, `--json`.
 One line per slug, either `{ slug, upToDate: true, added: 0, changed: 0, removed: 0, skipped: 0 }`
 or `{ ok, slug, dryRun, added, changed, removed, skipped, errors[], missingVariants[], attributionFile }`.
 Not installed → `{ ok: false, error, slug }`. Works for all three kinds; the
