@@ -115,10 +115,16 @@ This flow makes illustrations; icon sets and typefaces have their own (below).
 # quote, then run with a cap; the returned savedAs.slug is a private style
 npx artifisio generate style -p "fintech onboarding, flat 2D pastels" \
   --save-as fintech-v1 --max-credits 30 --json
-# parse savedAs.slug (a <name>-<hash>; never guess it), then:
-npx artifisio add <savedAs.slug> --private --json
+# parse savedAs.slug (a <name>-<hash>; never guess it), then generate in it
+# (each illustration is kept in the style) and install it:
 npx artifisio generate illustration <savedAs.slug> -p "empty cart" --max-credits 5 --json
+npx artifisio add <savedAs.slug> --private --json
 ```
+
+A flat background colour named in the brief ("on a flat near-black
+background") is kept as part of the style; otherwise the pipeline picks one.
+For art that sits on cards and pages of other colours, add `--transparent` to
+`generate illustration` (pngs with alpha).
 
 `--then-add` and `--then-generate "<subject>"` chain the three steps in one
 call. Generated files land in `./generations/<timestamp>` (`-o <dir>` to
@@ -150,6 +156,22 @@ restores it at `manageUrl`, then `add --private` installs it. If the command sto
 icons --collect <id>` picks the set up for free. One icon set generates at a
 time per account. In an MCP host: `generate` with `useCase: "icons"`, then
 `add` with `kind: "icon"`, `private: true`.
+
+To add icons to one of the user's sets, or draw some again, name the set
+instead of a brief: they are drawn in its own style (with the default icon
+model unless `-m`), at the price of a sheet, and the slug stays the same:
+
+```bash
+npx artifisio generate icons --set <slug> --icon wallet receipt --max-credits 30 --json
+npx artifisio generate icons --set <slug> --mode redraw --icon home --max-credits 30 --json
+npx artifisio update <slug> --json   # where the set is already installed
+```
+
+`--mode add` (default) takes names the set does not hold, `--mode redraw`
+names it does, replaced in place. Tell the user which icons came back
+`flagged` by the quality check (offer a redraw of those) and show any
+`rejected` redraws: they drifted from the family, so the set kept its own.
+MCP: `set` and `mode` on `generate` with `useCase: "icons"`, no `prompt`.
 
 ### Need a typeface nothing in the registry has?
 
@@ -281,6 +303,19 @@ to them. `--auto-color` / `--colors` are ignored for fonts.
   `AssetName`, `paths`, and `AssetPaths`; illustrations and icons also export
   `palette` and `PaletteSlotName`. Icons add `sprite` when supplied; fonts add
   `family` and `stylesheet`.
+- **`paths.ts`** instead, for icons only, with `--emit paths` (MCP `emit: "paths"`;
+  hosted returns it as `pathsModule.source` to save yourself, or above 100 KB a
+  warning to run the command locally): `iconPaths` maps each slug to its path
+  `d` (multi-colour or multi-path icons: `{ d, fill?, slot? }` layers), plus
+  `IconName`, `viewBox` and `fillRule`. Narrow the entry before rendering it
+  inline; without `evenodd` the holes fill in:
+  ```tsx
+  const icon = iconPaths[name]
+  const layers = typeof icon === "string" ? [{ d: icon }] : icon
+  <svg viewBox={viewBox}>
+    {layers.map((l) => <path key={l.d} d={l.d} fillRule={fillRule} fill={"fill" in l ? l.fill : "currentColor"} />)}
+  </svg>
+  ```
 - **`.artifisiorc.json`** at the project root — commit it. It pins each set's
   version and manifest hash so installs reproduce; don't hand-edit the
   CLI-managed `version` / `manifestHash`.

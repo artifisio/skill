@@ -113,10 +113,10 @@ markers, JSON/TOML configs are merged, nothing of yours is removed.
 
 ### `add <set>`
 `--kind`, `--private`, `--dir <dir>`, `--colors "slot=#hex,…"`, `--strict`,
-`--bake`, `--format <list|all>`, `--emit none|ts|dts`, `--registry-version <ref>`,
+`--bake`, `--format <list|all>`, `--emit none|ts|dts|paths` (`paths`: icons only, writes `paths.ts`), `--registry-version <ref>`,
 `--auto-color "#hex[,…]"`, `--preview-colors <dir>`, `--cdn` (print CDN URLs,
 write nothing), `--dry-run`, `--json`.
-Payload: `{ ok, status: installed | updated | unchanged, slug, kind, dryRun, downloaded, skipped, errors[] { file, message }, missingVariants[], plannedFiles, emit, indexFile, autoColor, autoColors[] { slot, label, hex, appliedHex, distance }, outDir, license, attributionRequired, attribution, attributionFile }`.
+Payload: `{ ok, status: installed | updated | unchanged, slug, kind, dryRun, downloaded, skipped, errors[] { file, message }, missingVariants[], plannedFiles, emit, indexFile, autoColor, autoColors[] { slot, label, hex, appliedHex, distance }, outDir, license, attributionRequired, attribution, attributionFile, warnings[] }`.
 
 Install layout per kind (all relative to `.artifisiorc.json#outputDir`, default
 `./public/illustrations`; `--dir` overrides per set):
@@ -149,8 +149,8 @@ One line per slug, either `{ slug, upToDate: true, added: 0, changed: 0, removed
 or `{ ok, slug, dryRun, added, changed, removed, skipped, errors[], missingVariants[], attributionFile }`.
 Not installed → `{ ok: false, error, slug }`. Works for all three kinds; the
 kind comes from `.artifisiorc.json`. When the set directory already has an
-`index.ts` / `index.d.ts`, `update` regenerates it so the typed exports match
-the files on disk.
+`index.ts` / `index.d.ts` (or an icon `paths.ts`), `update` regenerates it so
+the typed exports match the files on disk.
 
 ### `ls`
 `--json` → `{ sets[] { slug, kind, source, name?, license?, version?, formats?, colors? } }`.
@@ -183,15 +183,18 @@ Common: `-p/--prompt <text>` (required), `-m/--model <id>`, `-n/--count <n>`,
 `image` / `edit`: `--aspect <ratio>` (`1:1` `3:2` `2:3` `4:3` `3:4` `16:9` `9:16` `21:9`),
 `--size 1K|2K|4K` — the nearest the model supports (`models --json` lists
 `aspectRatios` / `sizes`).
-`illustration`: `--iteration`, `--no-style-grid`.
+`illustration`: `--iteration`, `--no-style-grid`, `--transparent` (pngs with
+alpha: a flat ground is colour-keyed out free, any other cut out at 1 credit an image).
 `style`: `--enhance none|concept|planned` (concept), `--save-as <name>`,
-`--then-add`, `--then-generate <prompt>`.
+`--then-add`, `--then-generate <prompt>` (runs before the add, so the install includes it).
+A flat background colour the brief names ("on a flat near-black background")
+is kept as part of the style; otherwise the pipeline picks one.
 
 Payloads:
 - `--dry-run`: `{ dryRun: true, quote { useCase, modelId, count, estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient } }`.
-- `illustration`: `{ images[], id?, savedTo[] | null, totalCostInCents }`.
+- `illustration`: `{ images[], id?, savedTo[] | null, totalCostInCents, savedAs { slug, id, installHint, illustrations[] } | null }` (`savedAs`: in a style of your own, the images are published there as `illustrations`; `savedAsError` when some or all were not kept, `illustrations` then listing only those that were).
 - `image` / `edit`: `{ images[], id?, savedTo, totalCostInCents }`.
-- `style`: `{ images[], id?, prompt, rawPrompt, savedTo, totalCostInCents, savedAs { slug, id, installHint } | null, added { status, outDir } | null, firstIllustration { images, savedTo, totalCostInCents } | null }`.
+- `style`: `{ images[], id?, prompt, rawPrompt, savedTo, totalCostInCents, savedAs { slug, id, installHint } | null, added { status, outDir } | null, firstIllustration { images, savedTo, totalCostInCents, savedAsError? } | null }`.
 
 `generate icons -p <style brief> --icon <name|name=hint>...` generates an icon
 set on one sheet, traced to SVG and saved as your private icon set:
@@ -201,9 +204,15 @@ set on one sheet, traced to SVG and saved as your private icon set:
 `--no-preflight`, `--json`. The quote's `count` is the number of icons, priced
 as one sheet. It waits for the run (~3 minutes); `--collect <id>` picks up a
 run started earlier, free. Payload: `{ id, name, slug, icons[] { name, svgUrl },
-missing[], extras[] { name, svgUrl }, manageUrl, sheetUrl, palette, savedTo[] | null,
-totalCostInCents }`; `extras` filled the rest of the sheet and are not in the set:
-to keep an extra, restore it at `manageUrl`, then `add --private`. Install it
+missing[], extras[] { name, svgUrl }, flagged[] { name, flags }, rejected[] { name,
+svgUrl, flags }, manageUrl, sheetUrl, palette, savedTo[] | null, totalCostInCents }`;
+`extras` filled the rest of the sheet and are not in the set: to keep an extra,
+restore it at `manageUrl`, then `add --private`; `flagged` are icons the quality
+check flagged. `--set <slug|id>` (no `-p`, `--fill`, `--accent`, `--stroke`,
+`--name`) draws the icons into one of your sets in its own style, default icon
+model unless `-m`: `--mode add` (default) new names, `--mode redraw` names it
+holds, replaced in place, same slug (`update <slug>` refreshes an install);
+`rejected` lists redraws that drifted from the family, which the set did not take. Install it
 with `add <slug> --kind icon --private`. A second set while one is generating
 fails with `code: "in_progress"`.
 

@@ -28,9 +28,9 @@ sentence.
 | `search` | `query`, `kind?` (`illustration` \| `icon` \| `font` \| `all`, default `all`), `color?` (hex), `tag?` (comma-separated, all must match), `limit?` (5, max 25), `previewCount?` (3, max 8) | `{ query, kind, registryVersions, unavailable?, results[] }` + an inline preview image for the first `previewCount` results |
 | `show` | `slug`, `kind?` (`illustration` \| `icon` \| `font`; default probes all) | the `show` payload (palette, themeable slots, items, `install`, `installWithColors`) + cover image. For an icon set the icons come back in the `items[]` array |
 | `facets` | `kind?` | tags, themeable slots, background counts, font scripts/weights, icon grids/strokes |
-| `add` | `slug`, `kind?`, `private?` (your private sets: illustrations, icons with `kind: "icon"` or fonts with `kind: "font"`), `autoColor?` (hex list), `colors?` (`{ slot: hex }`), `bake?`, `format?`, `emit?`, `dir?`, `dryRun?`, `projectDir?` (stdio) | stdio: the `add` payload (`status`, `outDir`, `autoColors`, `attributionFile`, …) plus `projectDir`. Hosted: `{ slug, kind, name, command, license, files[], warnings[] }` |
+| `add` | `slug`, `kind?`, `private?` (your private sets: illustrations, icons with `kind: "icon"` or fonts with `kind: "font"`), `autoColor?` (hex list), `colors?` (`{ slot: hex }`), `bake?`, `format?`, `emit?`, `dir?`, `dryRun?`, `projectDir?` (stdio) | stdio: the `add` payload (`status`, `outDir`, `autoColors`, `attributionFile`, …) plus `projectDir`. Hosted: `{ slug, kind, name, command, license, files[], warnings[], pathsModule? }` (`pathsModule: { file, source }` with `emit: "paths"`, icons only, not on `dryRun`: save `source` as `paths.ts`; above 100 KB it is left out with a warning, run `command` plus `--emit paths` locally) |
 | `quote` | `useCase` (`illustration` \| `image` \| `edit` \| `style` \| `logo` \| `icons` \| `font`), `model?`, `count?` (`font`: the candidates), `icons?` (for `icons`, quoted at `icons.length`), `withReferenceImage?`, `referenceImages?` (how many reference images, each priced), `aspectRatio?`, `size?` | `{ estimatedCreditsMin, estimatedCreditsMax, creditsRemaining, sufficient }` |
-| `generate` | `useCase`, `prompt`, `style?` (required for `illustration`), `name?` / `tagline?` / `colors?` (logo explore), `logoId?` + `concept?` (logo finalize; plus `refine?`, the change, to refine that concept instead), `icons?` + `fill?` + `accent?` + `stroke?` + `iconSetId?` (icons; `name` is the set name), `fontId?` + `candidate?` + `charset?` (font; `name` is the family name), `model?`, `count?`, `imageUrls?` (required for `edit`), `aspectRatio?` / `size?` (image, edit; `size` is the sheet resolution for icons), `enhance?` (style), `saveAs?` (style), `maxCredits?`, `dryRun?`, `inlineImages?`, stdio only: `download?`, `projectDir?` | the matching CLI `generate` payload + inline images; after `saveAs`, a `next` hint with the `add … --private` command (private sets are installed through the CLI) |
+| `generate` | `useCase`, `prompt`, `style?` (required for `illustration`), `name?` / `tagline?` / `colors?` (logo explore), `logoId?` + `concept?` (logo finalize; plus `refine?`, the change, to refine that concept instead), `icons?` + `fill?` + `accent?` + `stroke?` + `iconSetId?` (icons; `name` is the set name), `fontId?` + `candidate?` + `charset?` (font; `name` is the family name), `model?`, `count?`, `imageUrls?` (required for `edit`), `aspectRatio?` / `size?` (image, edit; `size` is the sheet resolution for icons), `enhance?` (style), `saveAs?` (style), `background?: "transparent"` (illustration: pngs with alpha), `maxCredits?`, `dryRun?`, `inlineImages?`, stdio only: `download?`, `projectDir?` | the matching CLI `generate` payload + inline images; `savedAs` names the private style kept: the one `saveAs` created, or, for `illustration` in a style of your own, that style plus the slugs the images were published as there; a `next` hint then says how to install it |
 
 Notes that bite:
 
@@ -63,16 +63,23 @@ Notes that bite:
 - `useCase: "icons"`: the style brief as `prompt` plus `icons` (names or
   `{ name, hint }`), optional `fill` / `accent` / `stroke`. The result is the
   user's private icon set: `{ id, status: "ready", slug, icons[] { name, svgUrl },
-  missing, extras[] { name, svgUrl }, manageUrl, sheetUrl, totalCostInCents, next }`;
+  missing, extras[] { name, svgUrl }, flagged[] { name, flags }, rejected[] { name,
+  svgUrl, flags }, manageUrl, sheetUrl, totalCostInCents, next }`;
   `extras` filled the rest of the sheet and are not in the set (to keep one,
-  restore it at `manageUrl`); install it with `add` and
+  restore it at `manageUrl`); `flagged` are icons the quality check flagged;
+  install it with `add` and
   `kind: "icon"`, `private: true` (hosted: run the `npx artifisio add … --kind
   icon --private` command in `next`). A run takes about three minutes, so a call answers
   `status: "generating"` after 45 seconds — call again with `iconSetId` after
   `retryAfterSeconds`, which is free (stdio then saves the SVGs under
   `generations/icons/<id>`). `code: "in_progress"` means an icon set is already
   generating for the account; its `id` is in the error, collect it with
-  `iconSetId`.
+  `iconSetId`. With `set` (one of the user's icon sets, slug or id) and no
+  `prompt` / `fill` / `accent` / `stroke` / `name`, the `icons` are drawn into
+  that set in its own style (default icon model unless `model`): `mode: "add"`
+  (default) for names it does not hold, `"redraw"` for names it does, replaced
+  in place; a redraw that drifted from the family comes back in `rejected` and
+  the set keeps its icon. Redraw the `flagged` ones the same way.
 - `useCase: "font"`: the brief as `prompt`, the family name as `name` (never a
   trademarked font name), `count` candidates (default 4, max 4; a garbled
   specimen is redrawn once, then dropped uncharged, so fewer can come back). The result
