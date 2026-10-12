@@ -10,6 +10,7 @@ fonts** — and to generate a custom illustration style when nothing fits — wi
 skills/artifisio/SKILL.md          the skill (+ references/cli.md, references/mcp.md)
 commands/artifisio.md              /artifisio <brief>   (Claude Code plugin command)
 .mcp.json                          MCP server config bundled with the plugin
+hooks/register.tsx                 /artifisio-view: generated images in a Claude Code pane
 .claude-plugin/                    plugin + marketplace manifests
 ```
 
@@ -22,7 +23,7 @@ the right glue (skill, rules fragment, MCP config):
 npx artifisio init --brand-color "#6366F1"
 ```
 
-**Claude Code** (plugin: skill + `/artifisio` + MCP):
+**Claude Code** (plugin: skill + `/artifisio` + MCP + preview pane):
 
 ```
 /plugin marketplace add artifisio/skill
@@ -39,6 +40,18 @@ npx skills add artifisio/skill
 (`.claude/skills/`, `.agents/skills/`, `.github/skills/`, …) and add the MCP
 server from `.mcp.json` to your host's MCP config. The key for generation is
 stored once with `npx artifisio auth <key>`; discovery and installs need none.
+
+## Preview pane (Claude Code)
+
+The plugin shows the images an Artifisio `generate` returns in a pane: it opens
+on its own when the terminal is wide enough, `/artifisio-view` opens it at any
+width, and the agent can show a chosen set with the `preview` tool. Terminals
+with the kitty graphics protocol (Ghostty, kitty) draw the images; elsewhere
+the pane shows each image's label and a link to the full-size file. Opened by
+the command or the agent, it asks for the keyboard; ctrl+x tab moves the keys
+between the pane and the prompt. While the pane has them, `p` / `n` browse and
+Esc closes.
+`/artifisio-view` also brings back the last set after a restart.
 
 ## Licensing
 

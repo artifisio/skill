@@ -9,7 +9,7 @@
     {
       "name": "artifisio",
       "source": "./",
-      "description": "Find, theme and install illustrations, icons and fonts — skill + /artifisio command + MCP server.",
+      "description": "Find, theme and install illustrations, icons and fonts — skill + /artifisio command + MCP server + image preview pane.",
       "version": "0.1.0",
       "category": "design",
       "keywords": ["illustrations", "icons", "svg", "fonts", "mcp"]

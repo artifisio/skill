@@ -1,10 +1,11 @@
 {
   "name": "artifisio",
   "version": "0.1.0",
-  "description": "Find, theme and install open-licensed illustrations, icons and fonts in any codebase — and generate a custom illustration style, icon set or typeface when nothing fits. Ships the artifisio skill, the /artifisio command and the artifisio MCP server.",
+  "description": "Find, theme and install open-licensed illustrations, icons and fonts in any codebase — and generate a custom illustration style, icon set or typeface when nothing fits. Ships the artifisio skill, the /artifisio command, the artifisio MCP server and a pane that shows generated images.",
   "author": { "name": "Artifisio", "url": "https://artifisio.com" },
   "homepage": "https://artifisio.com/developers",
   "repository": "https://github.com/artifisio/skill",
   "license": "MIT",
-  "keywords": ["illustrations", "icons", "svg", "fonts", "design-assets", "mcp", "artifisio"]
+  "keywords": ["illustrations", "icons", "svg", "fonts", "design-assets", "mcp", "artifisio"],
+  "types": "./types/index.d.ts"
 }
